@@ -8,3 +8,11 @@
   justify-content: space-around;
   gap: 3rem;
 }
+.car-right {
+  display: flex;
+  gap: 0.5rem;
+}
+.car {
+  display: flex;
+  gap: 3rem;
+}

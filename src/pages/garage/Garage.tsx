@@ -18,8 +18,8 @@ const Garage: React.FC = () => {
       {isLoading && <h2>Loading...</h2>}
       {isSuccess && (
         <div>
-          {data?.map((car, index) => (
-            <Car key={index} title={car.title} color={car.color} />
+          {data?.map((car) => (
+            <Car key={car.id} name={car.name} color={car.color} />
           ))}
         </div>
       )}
