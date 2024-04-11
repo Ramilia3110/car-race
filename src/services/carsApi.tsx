@@ -1,8 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { CarModel } from "../models/car.model";
 
-// Function to generate a random color
-
 export const carsApi = createApi({
   reducerPath: "carsApi",
   baseQuery: fetchBaseQuery({ baseUrl: "http://127.0.0.1:3000" }),
