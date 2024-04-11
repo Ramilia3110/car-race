@@ -1,14 +1,18 @@
-import { ReactNode } from "react";
+import { ButtonProps } from "../../models/button.model";
 
-interface Button {
-  title: string;
-  color: string;
-  icon?: ReactNode;
-}
-
-const Button: React.FC<Button> = ({ color, title, icon }) => {
+const Button: React.FC<ButtonProps> = ({
+  color,
+  title,
+  icon,
+  onClick,
+  disabled,
+}) => {
   return (
-    <button style={{ color: color, border: `1px solid ${color}` }}>
+    <button
+      style={{ color: color, border: `1px solid ${color}` }}
+      onClick={onClick}
+      disabled={disabled}
+    >
       {title}
       {icon && icon}
     </button>

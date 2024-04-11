@@ -1,21 +1,21 @@
 import React from "react";
-import Button from "../../components/button/Button";
-import { GrCaretNext } from "react-icons/gr";
-import { RxReset } from "react-icons/rx";
+
 import Car from "../../components/car/Car";
 import { useGetCarsQuery } from "../../services/carsApi";
+import ControlButtons from "../../components/controlButtons/ControlButtons";
 
 const Garage: React.FC = () => {
-  const { data, error, isLoading, isSuccess } = useGetCarsQuery();
+  const {
+    data,
+    error,
+    isLoading: getCarsLoading,
+    isSuccess,
+  } = useGetCarsQuery();
 
   return (
     <div>
-      <div className="buttons-line">
-        <Button title="Race" color="red" icon={<GrCaretNext />} />
-        <Button title="Reset" color="orange" icon={<RxReset />} />
-        <Button title="Generate cars" color="pink" />
-      </div>
-      {isLoading && <h2>Loading...</h2>}
+      <ControlButtons />
+      {getCarsLoading && <h2>Loading...</h2>}
       {isSuccess && (
         <div>
           {data?.map((car) => (
