@@ -3,5 +3,7 @@ export interface ButtonProps {
   color: string;
   icon?: ReactNode;
   onClick?: () => void;
-  disabled: boolean;
+  disabled?: boolean;
+  setSelectCar?: Dispatch<SetStateAction<boolean>>;
+  style?: React.CSSProperties;
 }

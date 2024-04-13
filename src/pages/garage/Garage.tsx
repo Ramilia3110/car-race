@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-
+import React, { useEffect, useState } from "react";
+import "./Garage.scss";
 import Car from "../../components/car/Car";
 import { useGetCarsQuery } from "../../services/carsApi";
 import ControlButtons from "../../components/controlButtons/ControlButtons";
@@ -10,9 +10,16 @@ const Garage: React.FC = () => {
     error,
     isLoading: getCarsLoading,
     isSuccess,
+    refetch: refetchCars,
   } = useGetCarsQuery();
 
+  useEffect(() => {
+    refetchCars();
+  }, [data, refetchCars]);
+
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectCar, setSelectCar] = useState<CarModel | null>(null);
+
   const recordPerPage = 7;
   const lastIndex = currentPage * recordPerPage;
   const firstIndex = lastIndex - recordPerPage;
@@ -25,40 +32,50 @@ const Garage: React.FC = () => {
       setCurrentPage(currentPage - 1);
     }
   }
+
   function changeCurrentPage(id) {
     setCurrentPage(id);
   }
+
   function nextPage() {
     if (currentPage !== npage) {
       setCurrentPage(currentPage + 1);
     }
   }
+
   return (
     <div>
-      <ControlButtons />
+      <ControlButtons selectCar={selectCar} setSelectCar={setSelectCar} />
       {getCarsLoading && <h2>Loading...</h2>}
       {isSuccess && (
         <div>
           {records?.map((car) => (
-            <Car key={car.id} name={car.name} color={car.color} />
+            <div key={car.id}>
+              <Car
+                id={car.id}
+                name={car.name}
+                color={car.color}
+                setSelectCar={setSelectCar}
+              />
+            </div>
           ))}
         </div>
       )}
       <nav>
         <ul className="pagination">
-          <li>
+          <li className="page">
             <a href="#" onClick={prePage}>
               Prev
             </a>
           </li>
           {numbers.map((n) => (
-            <li key={n}>
+            <li key={n} className="page">
               <a href="#" onClick={() => changeCurrentPage(n)}>
                 {n}
               </a>
             </li>
           ))}
-          <li>
+          <li className="page">
             <a href="#" onClick={nextPage}>
               Next
             </a>

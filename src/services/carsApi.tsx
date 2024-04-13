@@ -9,6 +9,9 @@ export const carsApi = createApi({
     getCars: builder.query<CarModel[], void>({
       query: () => "/garage",
     }),
+    getCar: builder.query<CarModel, string>({
+      query: (id) => `/garage/:${id}`,
+    }),
     // Mutation endpoint to generate and post cars to the server
     generateCars: builder.mutation<{}, CarModel>({
       query: (car) => ({
@@ -17,7 +20,20 @@ export const carsApi = createApi({
         body: car,
       }),
     }),
+    updateCar: builder.mutation<CarModel, Partial<CarModel>>({
+      // Change the return type to CarModel
+      query: ({ id, ...rest }) => ({
+        url: `/garage/:${id}`,
+        method: "PUT", // Change method to PUT
+        body: rest,
+      }),
+    }),
   }),
 });
 
-export const { useGetCarsQuery, useGenerateCarsMutation } = carsApi;
+export const {
+  useGetCarsQuery,
+  useGetCarQuery,
+  useGenerateCarsMutation,
+  useUpdateCarMutation,
+} = carsApi;

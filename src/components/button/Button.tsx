@@ -6,6 +6,7 @@ const Button: React.FC<ButtonProps> = ({
   icon,
   onClick,
   disabled,
+  style,
 }) => {
   return (
     <button
