@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { CarModel } from "../models/car.model";
+import { CarModel, EngineResponse, DriveMode } from "../models/car.model";
 
 export const carsApi = createApi({
   reducerPath: "carsApi",
@@ -10,7 +10,7 @@ export const carsApi = createApi({
       query: () => "/garage",
     }),
     getCar: builder.query<CarModel, string>({
-      query: (id) => `/garage/:${id}`,
+      query: (id) => `/garage/${id}`,
     }),
     // Mutation endpoint to generate and post cars to the server
     generateCars: builder.mutation<{}, CarModel>({
@@ -23,9 +23,41 @@ export const carsApi = createApi({
     updateCar: builder.mutation<CarModel, Partial<CarModel>>({
       // Change the return type to CarModel
       query: ({ id, ...rest }) => ({
-        url: `/garage/:${id}`,
-        method: "PUT", // Change method to PUT
+        url: `/garage/${id}`,
+        method: "PUT",
         body: rest,
+      }),
+    }),
+    deleteCar: builder.mutation<void, number>({
+      query: (id) => ({
+        url: `/garage/${id}`,
+        method: "DELETE",
+      }),
+    }),
+    startStopEngine: builder.mutation<
+      {
+        id: number;
+        status: "started" | "stopped";
+      },
+      EngineResponse
+    >({
+      query: ({ id, status }) => ({
+        url: "/engine",
+        method: "PATCH",
+        params: { id, status },
+      }),
+    }),
+    startDriveMode: builder.mutation<
+      {
+        id: number;
+        status: "drive";
+      },
+      DriveMode
+    >({
+      query: ({ id, status }) => ({
+        url: "/engine",
+        method: "PATCH",
+        params: { id, status },
       }),
     }),
   }),
@@ -36,4 +68,7 @@ export const {
   useGetCarQuery,
   useGenerateCarsMutation,
   useUpdateCarMutation,
+  useDeleteCarMutation,
+  useStartStopEngineMutation,
+  useStartDriveModeMutation,
 } = carsApi;

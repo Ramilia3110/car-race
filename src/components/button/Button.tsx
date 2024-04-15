@@ -1,4 +1,5 @@
 import { ButtonProps } from "../../models/button.model";
+import "./Button.scss";
 
 const Button: React.FC<ButtonProps> = ({
   color,
@@ -10,6 +11,7 @@ const Button: React.FC<ButtonProps> = ({
 }) => {
   return (
     <button
+      className="button"
       style={{ color: color, border: `1px solid ${color}` }}
       onClick={onClick}
       disabled={disabled}

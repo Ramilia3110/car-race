@@ -1,5 +1,13 @@
 export interface CarModel {
-  id: string;
+  id: number;
   name: string;
   color: string;
+}
+export interface EngineResponse {
+  velocity: number;
+  distance: number;
+}
+
+export interface DriveMode {
+  success: boolean;
 }
