@@ -3,6 +3,7 @@ import Button from "../button/Button";
 import { FaCarSide } from "react-icons/fa";
 import { CarModel } from "../../models/car.model";
 import {
+  useDeleteCarMutation,
   useStartStopEngineMutation,
   useStartDriveModeMutation,
 } from "../../services/carsApi";
@@ -10,30 +11,20 @@ import "./Car.scss";
 
 const Car: React.FC<
   CarModel & {
+    setSelectCar: (value: CarModel | null) => void;
     isRaceStarted: boolean;
   }
-> = ({ id, color, name, isRaceStarted }) => {
+> = ({ id, color, name, setSelectCar, isRaceStarted }) => {
+  const [clicked, setClicked] = useState(false);
+  const [deleteCar] = useDeleteCarMutation();
   const [isDriving, setIsDriving] = useState(false);
-  const [startStopEngine] = useStartStopEngineMutation();
+
+  const [startStopEngine, { isLoading }] = useStartStopEngineMutation();
   const [startDriveMode] = useStartDriveModeMutation();
 
   useEffect(() => {
-    setIsDriving(isRaceStarted);
+    setIsDriving(isRaceStarted); // Set isDriving based on isRaceStarted prop
   }, [isRaceStarted]);
-
-  useEffect(() => {
-    let animationInterval;
-
-    if (isDriving) {
-      animationInterval = setInterval(() => {
-        // Update the car's position or animation state based on its velocity
-      }, 1000); // Adjust the interval based on your requirements
-    } else {
-      clearInterval(animationInterval);
-    }
-
-    return () => clearInterval(animationInterval);
-  }, [isDriving]);
 
   const handleStartEngine = async () => {
     const response = await startStopEngine({ id, status: "started" });
@@ -54,20 +45,47 @@ const Car: React.FC<
     }
   };
 
+  // Select Car
+  const handleSelect = () => {
+    setClicked(true);
+    const selectedCar = { id, color, name };
+    console.log("Selected Car:", selectedCar);
+    setSelectCar(selectedCar);
+  };
+
+  const handleDelete = async () => {
+    console.log("Car ID:", id);
+    await deleteCar(id);
+  };
+
   return (
     <div className="car">
+      <div className="box1">
+        <Button
+          color="blue"
+          title="select"
+          onClick={handleSelect}
+          disabled={clicked}
+        />
+        <Button
+          color="purple"
+          title="delete"
+          onClick={handleDelete}
+          disabled={!id}
+        />
+      </div>
       <div className="box2">
         <Button
           color="blue"
           title="Start"
           onClick={handleStartEngine}
-          disabled={isDriving}
+          disabled={isLoading}
         />
         <Button
           color="purple"
           title="Stop"
           onClick={handleStopEngine}
-          disabled={!isDriving}
+          disabled={isLoading}
         />
       </div>
       <div className="race-line">

@@ -5,10 +5,17 @@ import ControlButtons from "../../components/controlButtons/ControlButtons";
 import { useGetCarsQuery } from "../../services/carsApi";
 
 const Garage: React.FC = () => {
-  const { data, isSuccess } = useGetCarsQuery();
+  const { data, isSuccess, isFetching } = useGetCarsQuery();
 
   const [currentPage, setCurrentPage] = useState(1);
   const [isRaceStarted, setIsRaceStarted] = useState(false);
+
+  const [selectCar, setSelectCar] = useState<CarModel | null>(null);
+
+  useEffect(() => {
+    setCurrentPage(1);
+    setIsRaceStarted(false);
+  }, [data, isFetching]);
 
   const recordPerPage = 7;
   const lastIndex = currentPage * recordPerPage;
@@ -26,15 +33,22 @@ const Garage: React.FC = () => {
     <div>
       <ControlButtons
         setIsRaceStarted={setIsRaceStarted}
+        selectCar={selectCar} // Pass setSelectCar to ControlButtons
         carsOnPage={records || []}
       />
       {isSuccess && (
         <div>
           {records?.map((car) => (
-            <Car key={car.id} {...car} isRaceStarted={isRaceStarted} />
+            <Car
+              key={car.id}
+              {...car}
+              isRaceStarted={isRaceStarted}
+              setSelectCar={setSelectCar} // Pass setSelectCar to Car
+            />
           ))}
         </div>
       )}
+      {isFetching && <p>Loading...</p>}
       <nav>
         <ul className="pagination">
           <li className="page">
