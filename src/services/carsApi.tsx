@@ -1,5 +1,10 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { CarModel, EngineResponse, DriveMode } from "../models/car.model";
+import {
+  CarModel,
+  EngineResponse,
+  DriveMode,
+  Winner,
+} from "../models/car.model";
 
 export const carsApi = createApi({
   reducerPath: "carsApi",
@@ -21,7 +26,6 @@ export const carsApi = createApi({
       }),
     }),
     updateCar: builder.mutation<CarModel, Partial<CarModel>>({
-      // Change the return type to CarModel
       query: ({ id, ...rest }) => ({
         url: `/garage/${id}`,
         method: "PUT",
@@ -60,6 +64,30 @@ export const carsApi = createApi({
         params: { id, status },
       }),
     }),
+    getWinners: builder.query<
+      { id: number; wins: number; time: number }[], // Response data type
+      void // No URL params
+    >({
+      query: () => "/winners",
+    }),
+
+    // New endpoint to get a specific winner
+    getWinnerById: builder.query<
+      { id: number; wins: number; time: number }, // Response data type
+      number // URL params type
+    >({
+      query: (winnerId) => ({
+        url: `/winners/${winnerId}`,
+        method: "GET",
+      }),
+    }),
+    createWinner: builder.mutation<Winner, Winner>({
+      query: (winnerData) => ({
+        url: "/winners",
+        method: "POST",
+        body: winnerData,
+      }),
+    }),
   }),
 });
 
@@ -71,4 +99,7 @@ export const {
   useDeleteCarMutation,
   useStartStopEngineMutation,
   useStartDriveModeMutation,
+  useGetWinnersQuery,
+  useGetWinnerByIdQuery,
+  useCreateWinnerMutation,
 } = carsApi;

@@ -4,10 +4,20 @@ export interface CarModel {
   color: string;
 }
 export interface EngineResponse {
-  velocity: number;
+  id: number;
+  status: "started" | "stopped";
   distance: number;
+  velocity: number;
 }
 
 export interface DriveMode {
-  success: boolean;
+  id: number;
+  status: "drive";
+  success: true;
+}
+
+export interface Winner {
+  id: number;
+  wins: number;
+  time: number;
 }

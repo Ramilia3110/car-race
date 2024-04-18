@@ -1,0 +1,13 @@
+nav {
+  width: 100%;
+}
+nav ul {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  a {
+    color: rgb(142, 233, 144);
+    font-size: 2rem;
+  }
+}

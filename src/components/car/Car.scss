@@ -3,29 +3,38 @@
     transform: translateX(0);
   }
   100% {
-    transform: translateX(500px);
+    transform: translateX(
+      500px
+    ); /* Change this value to the desired final position */
   }
 }
 
-.car.driving {
-  animation: driveAnimation linear 3s;
+.car-image.driving {
+  animation: driveAnimation linear 3s forwards; /* Use 'forwards' to make the animation state persistent */
+}
+
+/* Rest of the CSS styles remain unchanged */
+
+.car-image {
+  width: 5rem;
+  height: 3rem;
 }
 
 .car {
-  width: 100%;
+  width: 90%;
+  margin: 1rem auto;
 }
+
 .race-line {
   background-color: rgb(98, 105, 105);
-  width: 100%;
+  width: 500px;
+  height: 100px;
   display: flex;
   justify-content: baseline;
   position: relative;
   border: 1px red solid;
 }
-.car-model {
-  width: 5rem;
-  height: 3rem;
-}
+
 .car-name {
   position: absolute;
   top: -25%;

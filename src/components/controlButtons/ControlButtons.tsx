@@ -3,6 +3,9 @@ import Button from "../../components/button/Button";
 import {
   useGenerateCarsMutation,
   useUpdateCarMutation,
+  useStartStopEngineMutation,
+  useStartDriveModeMutation,
+  useCreateWinnerMutation,
 } from "../../services/carsApi";
 import { GrCaretNext } from "react-icons/gr";
 import { RxReset } from "react-icons/rx";
@@ -13,26 +16,37 @@ import {
 import { CarModel } from "../../models/car.model";
 
 const ControlButtons: React.FC<{
-  selectCar: CarModel | null;
-}> = ({ selectCar }) => {
+  selectCar?: CarModel | null;
+  setIsRaceStarted: React.Dispatch<React.SetStateAction<boolean>>;
+  carsOnPage: CarModel[]; // Add prop to receive cars displayed on the current page
+}> = ({ selectCar, carsOnPage, setIsRaceStarted }) => {
   const [generateCars, { isLoading: generateCarsLoading }] =
     useGenerateCarsMutation();
   const [updateCar, { isLoading: updateCarLoading }] = useUpdateCarMutation();
+
+  const [startStopEngine] = useStartStopEngineMutation();
+  const [startDriveMode] = useStartDriveModeMutation();
+  const [createWinner] = useCreateWinnerMutation();
 
   const [color, setColor] = useState("");
   const [name, setName] = useState("");
   const [createColor, setCreateColor] = useState("");
   const [createName, setCreateName] = useState("");
-  const carId = Math.floor(Math.random() * 1000);
+
+  const [winner, setWinner] = useState({});
+  // Define isRaceStarted state
 
   const handleGenerateCars = () => {
-    for (let i = 0; i < 100; i++) {
+    let generatedCount = 0;
+
+    while (generatedCount < 101) {
       const car = {
-        id: carId,
+        id: Math.floor(Math.random() * 1000),
         name: generateRandomCarName(),
         color: generateRandomColor(),
       };
       generateCars(car);
+      generatedCount++;
     }
   };
 
@@ -40,7 +54,7 @@ const ControlButtons: React.FC<{
     e.preventDefault();
     if (createName && createColor) {
       const car = {
-        id: carId,
+        id: Math.floor(Math.random() * 1000),
         name: createName,
         color: createColor,
       };
@@ -56,18 +70,89 @@ const ControlButtons: React.FC<{
         name: name || selectCar.name || "",
         color: color || selectCar.color || "",
       };
-      console.log("Updated Car Data:", updatedCarData); // Add console log
       updateCar(updatedCarData);
     }
   };
 
-  console.log("Select Car:", selectCar); // Add console log
+  const handleRace = async () => {
+    let raceStarted = false; // Track if the race has started
+    if (carsOnPage && carsOnPage.length > 0) {
+      await Promise.all(
+        carsOnPage.map(async (car) => {
+          try {
+            const response = await startStopEngine({
+              id: car.id,
+              status: "started",
+            });
+            if (!response.error) {
+              console.log(`Engine started for car ${car.id}`);
+              const drive = await startDriveMode({
+                id: car.id,
+                status: "drive",
+              });
+              raceStarted = true; // Set raceStarted to true if at least one car starts driving
+              console.log(`Drive mode started for car ${car.id}`);
+            } else {
+              console.error(
+                `Error starting engine for car ${car.id}:`,
+                response.error
+              );
+            }
+          } catch (error) {
+            console.error(
+              `Error starting drive mode for car ${car.id}:`,
+              error
+            );
+          }
+        })
+      );
+      // Set the race started state after the loop completes
+      if (raceStarted) {
+        setIsRaceStarted(true);
+      } else {
+        setIsRaceStarted(false);
+      }
+    }
+  };
+
+  const handleReset = async () => {
+    setIsRaceStarted(false);
+    for (const car of carsOnPage) {
+      try {
+        // Stop the engine for the selected car
+        await startStopEngine({ id: car.id, status: "stopped" });
+        console.log(`Engine stopped for car ${car.id}`);
+
+        // Stop driving mode for the selected car
+        await startDriveMode({ id: car.id, status: "stop" });
+        console.log(`Drive mode stopped for car ${car.id}`);
+
+        // Reset the car's position to its initial position
+        const initialPosition = { x: 0, y: 0 }; // Assuming the initial position is (0, 0)
+        // Update the car's position in the backend (use appropriate mutation)
+        await updateCarPosition(car.id, initialPosition); // Update car position
+      } catch (error) {
+        console.error(`Error resetting car ${car.id}:`, error);
+      }
+    }
+  };
 
   return (
     <div>
       <div className="buttons-line">
-        <Button title="Race" color="red" icon={<GrCaretNext />} />
-        <Button title="Reset" color="orange" icon={<RxReset />} />
+        <Button
+          title="Race"
+          color="red"
+          icon={<GrCaretNext />}
+          onClick={handleRace}
+        />
+
+        <Button
+          title="Reset"
+          color="orange"
+          icon={<RxReset />}
+          onClick={handleReset}
+        />
         <form onSubmit={handleCreateCar}>
           <input
             type="text"

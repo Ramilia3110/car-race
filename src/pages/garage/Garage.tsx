@@ -1,84 +1,56 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Garage.scss";
 import Car from "../../components/car/Car";
-import { useGetCarsQuery } from "../../services/carsApi";
 import ControlButtons from "../../components/controlButtons/ControlButtons";
+import { useGetCarsQuery } from "../../services/carsApi";
 
 const Garage: React.FC = () => {
-  const {
-    data,
-    error,
-    isLoading: getCarsLoading,
-    isSuccess,
-    refetch: refetchCars,
-  } = useGetCarsQuery();
-
-  useEffect(() => {
-    refetchCars();
-  }, [data, refetchCars]);
+  const { data, isSuccess } = useGetCarsQuery();
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectCar, setSelectCar] = useState<CarModel | null>(null);
+  const [isRaceStarted, setIsRaceStarted] = useState(false);
 
   const recordPerPage = 7;
   const lastIndex = currentPage * recordPerPage;
   const firstIndex = lastIndex - recordPerPage;
   const records = data?.slice(firstIndex, lastIndex);
-  const npage = Math.ceil((data?.length || 0) / recordPerPage); // Corrected calculation
+  const npage = Math.ceil((data?.length || 0) / recordPerPage);
   const numbers = [...Array(npage).keys()].map((num) => num + 1);
 
-  function prePage() {
-    if (currentPage !== 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  }
-
-  function changeCurrentPage(id) {
-    setCurrentPage(id);
-  }
-
-  function nextPage() {
-    if (currentPage !== npage) {
-      setCurrentPage(currentPage + 1);
-    }
-  }
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    setIsRaceStarted(false); // Stop the race when changing pages
+  };
 
   return (
     <div>
-      <ControlButtons selectCar={selectCar} setSelectCar={setSelectCar} />
-      {getCarsLoading && <h2>Loading...</h2>}
+      <ControlButtons
+        setIsRaceStarted={setIsRaceStarted}
+        carsOnPage={records || []}
+      />
       {isSuccess && (
         <div>
           {records?.map((car) => (
-            <div key={car.id}>
-              <Car
-                id={car.id}
-                name={car.name}
-                color={car.color}
-                setSelectCar={setSelectCar}
-              />
-            </div>
+            <Car key={car.id} {...car} isRaceStarted={isRaceStarted} />
           ))}
         </div>
       )}
       <nav>
         <ul className="pagination">
           <li className="page">
-            <a href="#" onClick={prePage}>
+            <button onClick={() => handlePageChange(currentPage - 1)}>
               Prev
-            </a>
+            </button>
           </li>
           {numbers.map((n) => (
             <li key={n} className="page">
-              <a href="#" onClick={() => changeCurrentPage(n)}>
-                {n}
-              </a>
+              <button onClick={() => handlePageChange(n)}>{n}</button>
             </li>
           ))}
           <li className="page">
-            <a href="#" onClick={nextPage}>
+            <button onClick={() => handlePageChange(currentPage + 1)}>
               Next
-            </a>
+            </button>
           </li>
         </ul>
       </nav>
